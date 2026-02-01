@@ -29,12 +29,12 @@ function CalculateCombos($numCombos, $numRanks, $numSuits, $deckSize)
         $flushOdds = GetFlushOdds -flushSize $i -possibleFlushes $possibleFlushes -deckSize $deckSize
         $oddsList.Add($flushOdds)
 
-        if (($i -ge 4) -and ($i % 2 -eq 0)) # Can only make a pair sequence with 4 or greater cards and only with an even number of cards.
+        if (($i -ge 4) -and ($i % 2 -eq 0)) # Can only make a pair run with 4 or greater cards and only with an even number of cards.
         {
-            # Calculate pair sequences
-            $possiblePairSequences = GetPossiblePairSequences -size $i -numRanks $numRanks -numSuits $numSuits
-            $pairSequenceOdds = GetPairSequenceOdds -size $i -possiblePairSequences $possiblePairSequences -deckSize $deckSize
-            $oddsList.Add($pairSequenceOdds)
+            # Calculate pair runs
+            $possiblePairRuns = GetPossiblePairRuns -size $i -numRanks $numRanks -numSuits $numSuits
+            $pairRunOdds = GetPairRunOdds -size $i -possiblePairRuns $possiblePairRuns -deckSize $deckSize
+            $oddsList.Add($pairRunOdds)
         }
     }
     # Calculate full houses
@@ -216,11 +216,11 @@ function GetFullHouseOdds($possibleFullHouses, $deckSize)
     }
 }
 
-function GetPossiblePairSequences($size, $numRanks, $numSuits)
+function GetPossiblePairRuns($size, $numRanks, $numSuits)
 {
-    Write-Host "Pair sequence of $size cards`:"
-    $waysToMakePairSequence = $numRanks - $size / 2 + 1
-    Write-Host "With $numRanks ranks, there are $waysToMakePairSequence ways to make a pair sequence of $size." -ForegroundColor "DarkCyan"
+    Write-Host "Pair run of $size cards`:"
+    $waysToMakePairRun = $numRanks - $size / 2 + 1
+    Write-Host "With $numRanks ranks, there are $waysToMakePairRun ways to make a pair run of $size." -ForegroundColor "DarkCyan"
 
     $suitCombos = GetCombos -n $numSuits -r 2
     Write-Host "For each pair we will select 2 suits from $numSuits, for a total of $suitCombos possible suit combos for each pair." -ForegroundColor "DarkCyan"
@@ -228,22 +228,22 @@ function GetPossiblePairSequences($size, $numRanks, $numSuits)
     $totalSuitCombos = [Math]::Pow($suitCombos, $size / 2)
     Write-Host "So for $($size /2) pairs there are $suitCombos ^ $($size /2) = $totalSuitCombos possible suit combos." -ForegroundColor "DarkCyan"
 
-    $possiblePairSequences = $waysToMakePairSequence * $totalSuitCombos
-    Write-Host "There are $waysToMakePairSequence * $totalSuitCombos = $possiblePairSequences possible pair sequences of $size cards." -ForegroundColor "DarkCyan"    
+    $possiblePairRuns = $waysToMakePairRun * $totalSuitCombos
+    Write-Host "There are $waysToMakePairRun * $totalSuitCombos = $possiblePairRuns possible pair runs of $size cards." -ForegroundColor "DarkCyan"    
     
-    return $possiblePairSequences
+    return $possiblePairRuns
 }
 
-function GetPairSequenceOdds($size, $possiblePairSequences, $deckSize)
+function GetPairRunOdds($size, $possiblePairRuns, $deckSize)
 {
     $possibleCombos = GetCombos -n $deckSize -r $size
     Write-Host "There are $possibleCombos possible combos if you take $size cards from the deck." -ForegroundColor "DarkCyan"
-    [decimal]$pairSequenceOdds = $possiblePairSequences / $possibleCombos
-    $pairSequenceOdds = [Math]::Round($pairSequenceOdds, 12)
-    Write-Host "Odds of a pair sequence of $size, is: $possiblePairSequences / $possibleCombos = $pairSequenceOdds" -ForegroundColor "DarkCyan"
+    [decimal]$pairRunOdds = $possiblePairRuns / $possibleCombos
+    $pairRunOdds = [Math]::Round($pairRunOdds, 12)
+    Write-Host "Odds of a pair run of $size, is: $possiblePairRuns / $possibleCombos = $pairRunOdds" -ForegroundColor "DarkCyan"
     return [PSCustomObject]@{
-        Name = "Pair sequence of $size"
-        Odds = $pairSequenceOdds
+        Name = "Pair run of $size"
+        Odds = $pairRunOdds
     }
 }
 
