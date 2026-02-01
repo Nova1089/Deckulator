@@ -28,12 +28,20 @@ function CalculateCombos($numCombos, $numRanks, $numSuits, $deckSize)
         $possibleFlushes = GetPossibleFlushes -flushSize $i -numRanks $numRanks -numSuits $numSuits
         $flushOdds = GetFlushOdds -flushSize $i -possibleFlushes $possibleFlushes -deckSize $deckSize
         $oddsList.Add($flushOdds)
+
+        if (($i -ge 4) -and ($i % 2 -eq 0)) # Can only make a pair sequence with 4 or greater cards and only with an even number of cards.
+        {
+            # Calculate pair sequences
+            $possiblePairSequences = GetPossiblePairSequences -size $i -numRanks $numRanks -numSuits $numSuits
+            $pairSequenceOdds = GetPairSequenceOdds -size $i -possiblePairSequences $possiblePairSequences -deckSize $deckSize
+            $oddsList.Add($pairSequenceOdds)
+        }
     }
     # Calculate full houses
     $possibleFullHouses = GetPossibleFullHouses -numRanks $numRanks -numSuits $numSuits
     $fullHouseOdds = GetFullHouseOdds -possibleFullHouses $possibleFullHouses -deckSize $deckSize
     $oddsList.Add($fullHouseOdds)
-    
+
     return $oddsList
 }
 
@@ -205,6 +213,37 @@ function GetFullHouseOdds($possibleFullHouses, $deckSize)
     return [PSCustomObject]@{
         Name = "Full house"
         Odds = $fullHouseOdds
+    }
+}
+
+function GetPossiblePairSequences($size, $numRanks, $numSuits)
+{
+    Write-Host "Pair sequence of $size cards`:"
+    $waysToMakePairSequence = $numRanks - $size / 2 + 1
+    Write-Host "With $numRanks ranks, there are $waysToMakePairSequence ways to make a pair sequence of $size." -ForegroundColor "DarkCyan"
+
+    $suitCombos = GetCombos -n $numSuits -r 2
+    Write-Host "For each pair we will select 2 suits from $numSuits, for a total of $suitCombos possible suit combos for each pair." -ForegroundColor "DarkCyan"
+
+    $totalSuitCombos = [Math]::Pow($suitCombos, $size / 2)
+    Write-Host "So for $($size /2) pairs there are $suitCombos ^ $($size /2) = $totalSuitCombos possible suit combos." -ForegroundColor "DarkCyan"
+
+    $possiblePairSequences = $waysToMakePairSequence * $totalSuitCombos
+    Write-Host "There are $waysToMakePairSequence * $totalSuitCombos = $possiblePairSequences possible pair sequences of $size cards." -ForegroundColor "DarkCyan"    
+    
+    return $possiblePairSequences
+}
+
+function GetPairSequenceOdds($size, $possiblePairSequences, $deckSize)
+{
+    $possibleCombos = GetCombos -n $deckSize -r $size
+    Write-Host "There are $possibleCombos possible combos if you take $size cards from the deck." -ForegroundColor "DarkCyan"
+    [decimal]$pairSequenceOdds = $possiblePairSequences / $possibleCombos
+    $pairSequenceOdds = [Math]::Round($pairSequenceOdds, 12)
+    Write-Host "Odds of a pair sequence of $size, is: $possiblePairSequences / $possibleCombos = $pairSequenceOdds" -ForegroundColor "DarkCyan"
+    return [PSCustomObject]@{
+        Name = "Pair sequence of $size"
+        Odds = $pairSequenceOdds
     }
 }
 
