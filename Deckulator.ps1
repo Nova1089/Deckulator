@@ -211,7 +211,7 @@ function GetFullHouseOdds($possibleFullHouses, $deckSize)
     $fullHouseOdds = [Math]::Round($fullHouseOdds, 12)
     Write-Host "Odds of a full house is: $possibleFullHouses / $possibleCombos = $fullHouseOdds" -ForegroundColor "DarkCyan"
     return [PSCustomObject]@{
-        Name = "Full house"
+        Name = "Full House"
         Odds = $fullHouseOdds
     }
 }
